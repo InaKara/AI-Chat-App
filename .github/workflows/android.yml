@@ -1,4 +1,4 @@
-name: Android APK (Kivy/Buildozer)
+name: Android APK (Kivy/Buildozer, no Docker)
 
 on:
   push:
@@ -12,18 +12,33 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Pull Buildozer image
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install system deps
         run: |
-          DOCKER_BUILDKIT=0 docker pull kivy/buildozer
+          sudo apt-get update
+          sudo apt-get install -y \
+            openjdk-17-jdk git zip unzip build-essential \
+            libffi-dev libssl-dev zlib1g-dev libltdl-dev \
+            python3-setuptools
+
+      - name: Install buildozer (in venv)
+        working-directory: kivy
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install cython==0.29.37 buildozer
 
       - name: Build debug APK
+        working-directory: kivy
         run: |
-          DOCKER_BUILDKIT=0 docker run --rm \
-            -v "${{ github.workspace }}:/home/buildozer/build" \
-            -w /home/buildozer/build/kivy \
-            kivy/buildozer \
-            buildozer -v android debug
-            
+          source .venv/bin/activate
+          buildozer -v android debug
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
