@@ -1,36 +1,56 @@
+# -----------------------------------------------------------------------------
+# kv_files/chatbot_screen.kv — Chat UI layout
+# WHAT: Defines the visual structure of the Chatbot screen and the temporary
+#       spinner row shown during LLM responses.
+# WHY: Keeps presentation separate from Python logic; Python code addresses
+#      widgets via `ids` to update content safely from the UI thread.
+# HOW: Uses KivyMD widgets (labels, buttons, scroll view) and a vertical layout
+#      that splits into: top action bar, scrollable history, and input row.
+# NOTE: Per request, original code lines are unchanged; only comments added.
+# -----------------------------------------------------------------------------
+
 # kv_files/chatbot_screen.kv
 
 <TempSpinWait>:
+    # TempSpinWait: a horizontal row with text + spinner. App adds/removes
+    # this widget to indicate a pending LLM response.
     id: temp_spin
     orientation: 'horizontal'
     adaptive_height: True
     padding: dp(8)
 
     MDLabel:
+        # Brief hint while waiting for model output
         text: "Please wait..."
         font_style: "Subtitle1"
         adaptive_width: True
 
     MDSpinner:
+        # Small inline spinner (size set in device-independent pixels)
         size_hint: None, None
         size: dp(14), dp(14)
         active: True
 
 <ChatbotScreen>:
+    # When this screen becomes active, Python code populates model list and
+    # prints the current Ollama URI into the chat history.
     on_enter: app.update_chatbot_welcome(self)
 
     MDBoxLayout: # main box
+        # Vertical stacking: top controls, scrollable chat, bottom input row
         orientation: 'vertical'
         padding: dp(8)
         spacing: dp(10)
 
         MDBoxLayout: # top button group
+            # Controls: change URI, select model, overflow menu
             orientation: 'horizontal'
             adaptive_height: True
             #size_hint_y: 0.1
             spacing: dp(10)
 
             MDRectangleFlatButton:
+                # Opens the initial screen to change the Ollama base URL
                 text: "Change URI" # to change the uri during run time
                 #pos_hint: {'x': 0.01, 'top': 0.98}
                 size_hint: None, None
@@ -38,6 +58,8 @@
                 on_release: app.go_back_to_ollama_input(self)
 
             MDDropDownItem:
+                # The visible button that shows current model; the actual menu
+                # object lives in Python as `app.llm_menu` and is opened here.
                 md_bg_color: "#bdc6b0"
                 #pos_hint: {"center_x": .5, "center_y": .7}
                 on_release: app.llm_menu.open()
@@ -46,17 +68,21 @@
                 font_size: sp(14)
 
             Widget:
+                # Flexible spacer pushes the following icon button to the right
                 size_hint_x: 1
 
             MDIconButton:
+                # Top-right overflow menu; Python handles clicks via menu_bar_callback
                 icon: "menu"
                 on_release: app.menu_bar_callback(self)
 
         MDScrollView: # chat history section with scroll enabled
+            # Takes majority of space so conversation remains in view
             size_hint_y: 0.7 # Takes the 70%
             adaptive_height: True
 
             MDBoxLayout:
+                # Container where Python adds messages as widgets
                 id: chat_history_id
                 orientation: 'vertical'
                 spacing: dp(10)
@@ -64,6 +90,8 @@
                 size_hint_y: None
                 height: self.minimum_height
 
+                # The block below shows how a single MDLabel chat transcript could
+                # be configured; this project uses per-message widgets instead.
                 #MDLabel:
                 #    id: chat_label # chat history label
                 #    size_hint_y: None
@@ -80,12 +108,14 @@
                 #    height: self.texture_size[1]
 
         MDBoxLayout: # Input box
+            # Bottom row: text input and Send button
             size_hint_y: 0.2
             orientation: 'horizontal'
             spacing: dp(5)
             adaptive_height: True
 
             MDTextField:
+                # Multi-line prompt input; Python reads `ids.chat_input.text`
                 id: chat_input
                 hint_text: "Ask anyhthing..."
                 mode: "rectangle"
@@ -96,6 +126,8 @@
                 keyboard_suggestions: True
                 font_size: sp(18)
             MDFillRoundFlatButton:
+                # Sends the message; Python handler reads/clears the text and
+                # starts the background call to the LLM.
                 id: send_msg_button
                 text: "Send"
                 size_hint_x: 0.2

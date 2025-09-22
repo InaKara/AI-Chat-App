@@ -1,22 +1,60 @@
+# -----------------------------------------------------------------------------
+# main_layout.kv — Root KV file
+# WHAT: Declares the root MDScreenManager and includes child screen KV files.
+# WHY: Central place that wires together the app's screens so the Python side
+#      can just `Builder.load_file(kv_file_path)` and get a ready UI tree.
+# HOW: Uses KV `#:import` to pull in widget classes/functions and `#:include` to
+#      splice in per-screen layouts.
+# NOTE: Per your request, no original lines are changed or removed—only comments
+#       are added above the existing lines for clarity.
+# -----------------------------------------------------------------------------
+
+# --- Imports available to this KV file ---------------------------------------
+# `#:import` exposes Python classes/functions to KV by binding a local name to a
+# fully-qualified import path. These are used later in the included KV files.
+
 # main_layout.kv
 
-#:import MDScreenManager kivymd.uix.screenmanager.MDScreenManager
-#:import MDTextField kivymd.uix.textfield.MDTextField
-#:import MDRectangleFlatButton kivymd.uix.button.MDRectangleFlatButton
-#:import MDFillRoundFlatButton kivymd.uix.button.MDFillRoundFlatButton
-#:import MDIconButton kivymd.uix.button.MDIconButton
-#:import MDLabel kivymd.uix.label.MDLabel
-#:import MDScreen kivymd.uix.screen.MDScreen
-#:import MDBoxLayout kivymd.uix.boxlayout.MDBoxLayout
-#:import MDScrollView kivymd.uix.scrollview.MDScrollView
-#:import MDDropDownItem kivymd.uix.dropdownitem.MDDropDownItem
-#:import dp kivy.metrics.dp
-#:import sp kivy.metrics.sp
-#:import Widget kivy.uix.widget.Widget
+#:import MDScreenManager kivymd.uix.screenmanager.MDScreenManager   
+# Screen container that manages transitions between pages
+#:import MDTextField kivymd.uix.textfield.MDTextField               
+# Material Design text input
+#:import MDRectangleFlatButton kivymd.uix.button.MDRectangleFlatButton  
+# Flat button variant
+#:import MDFillRoundFlatButton kivymd.uix.button.MDFillRoundFlatButton  
+# Filled rounded button variant
+#:import MDIconButton kivymd.uix.button.MDIconButton                 
+# Icon-only button
+#:import MDLabel kivymd.uix.label.MDLabel                            
+# Text label with theming and markup support
+#:import MDScreen kivymd.uix.screen.MDScreen                         
+# Base screen widget (rarely instantiated directly here)
+#:import MDBoxLayout kivymd.uix.boxlayout.MDBoxLayout                
+# Box layout for vertical/horizontal stacking
+#:import MDScrollView kivymd.uix.scrollview.MDScrollView             
+# Scroll container
+#:import MDDropDownItem kivymd.uix.dropdownitem.MDDropDownItem       
+# Dropdown display item (pairs with MDDropdownMenu from Python)
+#:import dp kivy.metrics.dp                                          
+# Device-independent pixel helper
+#:import sp kivy.metrics.sp                                          
+# Scale-independent pixel helper (font sizes)
+#:import Widget kivy.uix.widget.Widget                               
+# Base Widget class
+
+# --- Include per-screen KV definitions ---------------------------------------
+# `#:include` literally inlines the referenced KV files at parse-time, so
+# widgets/classes defined there (e.g., <ChatbotScreen@MDScreen> templates) are
+# available to instantiate below.
 
 # Include your other KV files
 #:include ollama_screen.kv
 #:include chatbot_screen.kv
+
+# --- Root widget --------------------------------------------------------------
+# The root is an MDScreenManager with two children: OllamaInputScreen and
+# ChatbotScreen. Their class definitions are provided by Python classes with the
+# same names (screens/*.py) and their layouts are in the included KV files.
 
 # Define the ScreenManager as the root widget
 MDScreenManager:

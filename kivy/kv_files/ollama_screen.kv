@@ -1,12 +1,23 @@
-# kv_files/name_input_screen.kv
+# -----------------------------------------------------------------------------
+# kv_files/name_input_screen.kv — Ollama URI input screen layout
+# WHAT: Minimal screen where the user enters the Ollama base URI the app should use
+#       (e.g., http://127.0.0.1:11434 or http://<LAN_IP>:11434).
+# WHY: Makes the endpoint configurable at runtime without changing code.
+# HOW: A label for instructions, a single-line text field, and a button that
+#      calls into the App to proceed to the chat screen.
+# NOTE: Original lines are preserved exactly; only explanatory comments added.
+# -----------------------------------------------------------------------------
 
 <OllamaInputScreen>:
+    # Title/instruction label centered near the top
     MDLabel:
         text: "Enter Ollama URI"
         halign: "center"
         font_style: "H5"
         pos_hint: {'center_x': 0.5, 'center_y': 0.7}
+
     MDTextField:
+        # Text field where the user types the base URL of the Ollama server
         id: ollama_url
         hint_text: "Enter the URI"
         mode: "rectangle"
@@ -16,7 +27,9 @@
         size_hint_x: 0.8
         font_size: sp(18)
         multiline: False
+
     MDRectangleFlatButton:
+        # Button that hands the value to the Python side and navigates forward
         text: "Start Chat"
         pos_hint: {'center_x': 0.5, 'center_y': 0.3}
         size_hint_x: 0.6
