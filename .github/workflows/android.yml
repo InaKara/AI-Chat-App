@@ -39,6 +39,20 @@ jobs:
           source .venv/bin/activate
           buildozer -v android debug
 
+      - name: Locate Buildozer dist path
+        id: dist
+        working-directory: kivy
+        run: |
+          DIST_DIR=$(ls -d .buildozer/android/platform/build-*/dists/* | head -n1)
+          echo "DIST_DIR=$DIST_DIR" >> $GITHUB_ENV
+          echo "Found dist at: $DIST_DIR"
+
+      - name: Upload Gradle project (dist)
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-dist
+          path: ${{ env.DIST_DIR }}
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
