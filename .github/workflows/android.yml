@@ -39,6 +39,17 @@ jobs:
           source .venv/bin/activate
           buildozer -v android debug
 
+# --- Diagnostics so we can see where Buildozer put the Gradle dist ---
+      - name: Show Buildozer output paths
+        working-directory: kivy
+        run: |
+          echo "Listing .buildozer/android/platform ..."
+          find .buildozer/android/platform -maxdepth 6 -type d -name dists -print -exec ls -la {} \; || true
+          echo "Any build.gradle files?"
+          find .buildozer -maxdepth 8 -type f -name build.gradle -print || true
+# --- Capture the first dist folder path into $GITHUB_ENV ---
+          
+
       - name: Locate Buildozer dist path
         id: dist
         working-directory: kivy
