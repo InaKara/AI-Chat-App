@@ -25,7 +25,7 @@ jobs:
             libffi-dev libssl-dev zlib1g-dev libltdl-dev \
             python3-setuptools
 
-      - name: Install buildozer (in venv)
+      - name: Create venv and install Buildozer
         working-directory: kivy
         run: |
           python -m venv .venv
@@ -39,7 +39,7 @@ jobs:
           source .venv/bin/activate
           buildozer -v android debug
 
-# --- Diagnostics so we can see where Buildozer put the Gradle dist ---
+      # Optional diagnostics to reveal where Buildozer placed the Gradle dist
       - name: Show Buildozer output paths
         working-directory: kivy
         run: |
@@ -47,22 +47,22 @@ jobs:
           find .buildozer/android/platform -maxdepth 6 -type d -name dists -print -exec ls -la {} \; || true
           echo "Any build.gradle files?"
           find .buildozer -maxdepth 8 -type f -name build.gradle -print || true
-# --- Capture the first dist folder path into $GITHUB_ENV ---
-          
 
-      - name: Locate Buildozer dist path
-        id: dist
+      # Zip and upload the Gradle project (dist) regardless of ABI subfolder naming
+      - name: Pack Gradle dist
         working-directory: kivy
         run: |
-          DIST_DIR=$(ls -d .buildozer/android/platform/build-*/dists/* | head -n1)
-          echo "DIST_DIR=$DIST_DIR" >> $GITHUB_ENV
-          echo "Found dist at: $DIST_DIR"
+          set -e
+          DIST=$(ls -d .buildozer/android/platform/build-*/dists/* | head -n1)
+          echo "Dist path: $DIST"
+          mkdir -p dist-upload
+          zip -r dist-upload/gradle-dist.zip "$DIST"
 
-      - name: Upload Gradle project (dist)
+      - name: Upload Gradle dist
         uses: actions/upload-artifact@v4
         with:
           name: gradle-dist
-          path: ${{ env.DIST_DIR }}
+          path: kivy/dist-upload/gradle-dist.zip
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
