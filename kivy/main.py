@@ -1,4 +1,5 @@
 # --- High-level overview -------------------------------------------------------
+# this version calls an llama moodel, running in a ollama server
 # This is the Kivy/KivyMD app entry point for your local LLM chat client.
 # It wires together:
 #   - UI screens (Ollama input + Chatbot)
